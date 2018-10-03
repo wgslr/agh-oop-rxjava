@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PhotoDownloader {
@@ -28,6 +29,13 @@ public class PhotoDownloader {
                 "https://i.pinimg.com/736x/7c/14/c9/7c14c97839940a09f987fbadbd47eb89--detective" +
                         "-monk-adrian-monk.jpg")
                 .map(this::getPhoto);
+    }
+
+    public Observable<Photo> searchForPhotos(List<String> searchQueries) {
+        return Observable.merge(
+                searchQueries.stream().map(this::searchForPhotos)
+                .collect(Collectors.toList())
+        );
     }
 
     public Observable<Photo> searchForPhotos(String searchQuery) {
@@ -56,6 +64,7 @@ public class PhotoDownloader {
             }
         });
     }
+
 
     private Photo getPhoto(String photoUrl) throws IOException {
         log.info("Downloading... " + photoUrl);
