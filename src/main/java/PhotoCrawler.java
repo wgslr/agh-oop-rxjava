@@ -30,10 +30,8 @@ public class PhotoCrawler {
 
     public void downloadPhotoExamples() {
         try {
-            List<Photo> downloadedExamples = photoDownloader.getPhotoExamples();
-            for (Photo photo : downloadedExamples) {
-                photoSerializer.savePhoto(photo);
-            }
+            photoDownloader.getPhotoExamples()
+                    .subscribe(photoSerializer::savePhoto);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Downloading photo examples error", e);
         }
