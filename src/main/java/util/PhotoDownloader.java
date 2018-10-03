@@ -68,11 +68,6 @@ public class PhotoDownloader {
 
     private Photo getPhoto(String photoUrl) throws IOException {
         log.info("Downloading... " + photoUrl);
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         byte[] photoData = downloadPhoto(photoUrl);
         return createPhoto(photoData);
     }
