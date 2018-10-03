@@ -11,6 +11,7 @@ public class CrawlerApp  {
         PhotoCrawler photoCrawler = new PhotoCrawler();
         photoCrawler.resetLibrary();
         photoCrawler.downloadPhotoExamples();
+        photoCrawler.downloadPhotosForQuery("disney");
 //        photoCrawler.downloadPhotosForQuery(TOPICS.get(0));
 //        photoCrawler.downloadPhotosForMultipleQueries(TOPICS);
     }

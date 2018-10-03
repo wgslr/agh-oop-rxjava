@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class PhotoDownloader {
 
@@ -20,29 +21,43 @@ public class PhotoDownloader {
 
     public Observable<Photo> getPhotoExamples() throws IOException {
         return Observable.just("https://i.ytimg.com/vi/7uxQjydfBOU/hqdefault.jpg",
-                "http://digitalspyuk.cdnds.net/16/51/1280x640/landscape-1482419524-12382542-low-res-sherlock.jpg",
+                "http://digitalspyuk.cdnds.net/16/51/1280x640/landscape-1482419524-12382542-low" +
+                        "-res-sherlock.jpg",
                 "http://image.pbs.org/video-assets/pbs/masterpiece/132733/images/mezzanine_172.jpg",
                 "https://classicmystery.files.wordpress.com/2016/04/miss-marple-2.jpg",
-                "https://i.pinimg.com/736x/7c/14/c9/7c14c97839940a09f987fbadbd47eb89--detective-monk-adrian-monk.jpg")
+                "https://i.pinimg.com/736x/7c/14/c9/7c14c97839940a09f987fbadbd47eb89--detective" +
+                        "-monk-adrian-monk.jpg")
                 .map(this::getPhoto);
     }
 
-    public List<Photo> searchForPhotos(String searchQuery) throws IOException {
-        List<Photo> photos = new ArrayList<>();
-        String googleSiteSource = downloadUrlSource(searchQuery);
-        List<String> photoUrls = extractPhotoUrls(googleSiteSource);
-
-        for (String photoUrl : photoUrls) {
+    public Observable<Photo> searchForPhotos(String searchQuery) {
+        Observable<String> urlsEmitter = Observable.create(observer -> {
             try {
-                photos.add(getPhoto(photoUrl));
+                String googleSiteSource = downloadUrlSource(searchQuery);
+                List<String> photoUrls = extractPhotoUrls(googleSiteSource);
+
+//                    photoUrls.stream().forEach(observer::onNext);
+                for (String url : photoUrls) {
+                    observer.onNext(url);
+                }
+
+                observer.onComplete();
             } catch (IOException e) {
-                log.log(Level.WARNING, "Could not download a photo", e);
+                log.log(Level.WARNING, "Could not obtain photo urls", e);
+                observer.onError(e);
             }
-        }
-        return photos;
+        });
+        return urlsEmitter.flatMap(url -> {
+            try {
+                return Observable.just(getPhoto(url));
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Could not download photo");
+                return Observable.empty();
+            }
+        });
     }
 
-    private Photo getPhoto(String photoUrl) throws IOException{
+    private Photo getPhoto(String photoUrl) throws IOException {
         log.info("Downloading... " + photoUrl);
         try {
             Thread.sleep(5);
@@ -57,15 +72,18 @@ public class PhotoDownloader {
         Tika tika = new Tika();
         String fileType = tika.detect(photoData);
         if (fileType.startsWith("image")) {
-            return new Photo(LocalDate.now(), fileType.substring(fileType.indexOf("/") + 1), photoData);
+            return new Photo(LocalDate.now(), fileType.substring(fileType.indexOf("/") + 1),
+                    photoData);
         }
         throw new IOException("Unsupported media type: " + fileType);
     }
 
     private String downloadUrlSource(String searchQuery) throws IOException {
-        URL url = new URL(String.format("https://www.google.com/search?q=%s&tbm=isch", searchQuery.replace(' ', '%')));
+        URL url = new URL(String.format("https://www.google.com/search?q=%s&tbm=isch",
+                searchQuery.replace(' ', '%')));
         URLConnection connection = url.openConnection();
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) " +
+                "AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
         StringBuilder sb = new StringBuilder();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(
                 connection.getInputStream(), "UTF-8"))) {
@@ -96,7 +114,8 @@ public class PhotoDownloader {
     private byte[] downloadPhoto(String url) throws IOException {
         URL photoUrl = new URL(url);
         URLConnection yc = photoUrl.openConnection();
-        yc.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+        yc.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537" +
+                ".11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
         try (InputStream inputStream = yc.getInputStream()) {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int nRead;
