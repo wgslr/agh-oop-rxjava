@@ -20,7 +20,7 @@ public class PhotoDownloader {
 
     private static final Logger log = Logger.getLogger(PhotoDownloader.class.getName());
 
-    public Observable<Photo> getPhotoExamples() throws IOException {
+    public Observable<Photo> getPhotoExamples() {
         return Observable.just("https://i.ytimg.com/vi/7uxQjydfBOU/hqdefault.jpg",
                 "http://digitalspyuk.cdnds.net/16/51/1280x640/landscape-1482419524-12382542-low" +
                         "-res-sherlock.jpg",
