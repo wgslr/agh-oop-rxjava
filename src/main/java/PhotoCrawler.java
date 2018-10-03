@@ -1,3 +1,4 @@
+import io.reactivex.Observable;
 import model.Photo;
 import util.PhotoDownloader;
 import util.PhotoProcessor;
@@ -30,8 +31,10 @@ public class PhotoCrawler {
 
     public void downloadPhotoExamples() {
         try {
-            photoDownloader.getPhotoExamples()
-                    .subscribe(photoSerializer::savePhoto);
+            Observable<Photo> obs = photoDownloader.getPhotoExamples();
+            log.log(Level.INFO, "Got observable object");
+            obs.subscribe(photoSerializer::savePhoto);
+            log.log(Level.INFO, "Finished downloads");
         } catch (IOException e) {
             log.log(Level.SEVERE, "Downloading photo examples error", e);
         }
