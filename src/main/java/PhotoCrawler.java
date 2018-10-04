@@ -64,7 +64,7 @@ public class PhotoCrawler {
                 .groupBy(PhotoSize::resolve)
                 .flatMap(groupedObservable -> {
                             if (groupedObservable.getKey() == PhotoSize.MEDIUM) {
-                                return groupedObservable.buffer(5, 0, TimeUnit.SECONDS)
+                                return groupedObservable.buffer(5, 5, TimeUnit.SECONDS)
                                         .flatMap(Observable::fromIterable);
                             } else {
                                 return groupedObservable

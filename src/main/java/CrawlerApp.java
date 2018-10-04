@@ -13,8 +13,7 @@ public class CrawlerApp  {
         photoCrawler.resetLibrary();
 //        photoCrawler.downloadPhotoExamples();
 //        photoCrawler.downloadPhotosForQuery(TOPICS.get(0));
-//        photoCrawler.downloadPhotosForMultipleQueries(TOPICS);
-        photoCrawler.downloadPhotosForMultipleQueries(Arrays.asList("highres", "wallpaper"));
+        photoCrawler.downloadPhotosForMultipleQueries(TOPICS);
 
         Thread.sleep(100_000);
     }
