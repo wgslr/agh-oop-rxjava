@@ -54,14 +54,13 @@ public class PhotoCrawler {
     private Observable<Photo> processPhotos(Observable<Photo> source) {
         return source.filter(photoProcessor::isPhotoValid)
                 .groupBy(PhotoSize::resolve)
-//                .subscribeOn(Schedulers.io())
                 .flatMap(groupedObservable -> {
                             if (groupedObservable.getKey() == PhotoSize.MEDIUM) {
                                 return groupedObservable.buffer(5, 0, TimeUnit.SECONDS)
                                         .flatMap(Observable::fromIterable);
                             } else {
-                                return groupedObservable.
-                                        observeOn(Schedulers.computation())
+                                return groupedObservable
+                                        .observeOn(Schedulers.computation())
                                         .map(photoProcessor::convertToMiniature);
                             }
                         }

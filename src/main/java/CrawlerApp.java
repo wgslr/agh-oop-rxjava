@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,11 +12,10 @@ public class CrawlerApp  {
         PhotoCrawler photoCrawler = new PhotoCrawler();
         photoCrawler.resetLibrary();
 //        photoCrawler.downloadPhotoExamples();
-        photoCrawler.downloadPhotosForMultipleQueries(TOPICS);
-
-
-        Thread.sleep(100_000);
 //        photoCrawler.downloadPhotosForQuery(TOPICS.get(0));
 //        photoCrawler.downloadPhotosForMultipleQueries(TOPICS);
+        photoCrawler.downloadPhotosForMultipleQueries(Arrays.asList("highres", "wallpaper"));
+
+        Thread.sleep(100_000);
     }
 }
