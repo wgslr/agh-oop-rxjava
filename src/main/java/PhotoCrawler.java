@@ -1,11 +1,15 @@
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import model.Photo;
+import model.PhotoSize;
 import util.PhotoDownloader;
 import util.PhotoProcessor;
 import util.PhotoSerializer;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,12 +49,22 @@ public class PhotoCrawler {
         photoDownloader.searchForPhotos(queries)
                 .compose(this::processPhotos)
                 .subscribe(photoSerializer::savePhoto);
-
     }
 
     private Observable<Photo> processPhotos(Observable<Photo> source) {
-
         return source.filter(photoProcessor::isPhotoValid)
-                .map(photoProcessor::convertToMiniature);
+                .groupBy(PhotoSize::resolve)
+//                .subscribeOn(Schedulers.io())
+                .flatMap(groupedObservable -> {
+                            if (groupedObservable.getKey() == PhotoSize.MEDIUM) {
+                                return groupedObservable.buffer(5, 0, TimeUnit.SECONDS)
+                                        .flatMap(Observable::fromIterable);
+                            } else {
+                                return groupedObservable.
+                                        observeOn(Schedulers.computation())
+                                        .map(photoProcessor::convertToMiniature);
+                            }
+                        }
+                );
     }
 }
