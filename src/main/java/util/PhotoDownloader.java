@@ -1,6 +1,8 @@
 package util;
 
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import model.Photo;
 import org.apache.tika.Tika;
 
@@ -32,10 +34,10 @@ public class PhotoDownloader {
     }
 
     public Observable<Photo> searchForPhotos(List<String> searchQueries) {
-        Observable<Observable<Photo>> observables = Observable.fromIterable(searchQueries)
-                .map(this::searchForPhotos);
-
-        return Observable.merge(observables);
+        return Observable.fromIterable(searchQueries)
+                .flatMap(query -> Observable.just(query)
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(this::searchForPhotos));
     }
 
     public Observable<Photo> searchForPhotos(String searchQuery) {

@@ -15,6 +15,7 @@ public class CrawlerApp  {
 //        photoCrawler.downloadPhotosForQuery(TOPICS.get(0));
         photoCrawler.downloadPhotosForMultipleQueries(TOPICS);
 
+
         Thread.sleep(100_000);
     }
 }
