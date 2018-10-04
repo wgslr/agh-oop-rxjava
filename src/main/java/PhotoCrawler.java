@@ -1,5 +1,4 @@
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
 import model.Photo;
 import model.PhotoSize;
@@ -34,24 +33,33 @@ public class PhotoCrawler {
 
     public void downloadPhotoExamples() {
         photoDownloader.getPhotoExamples()
-                .compose(this::processPhotos)
+//                .compose(this::processPhotos)
+                .compose(this::processPhotosWithGroupby)
                 .subscribe(photoSerializer::savePhoto);
         log.log(Level.INFO, "Finished downloads");
     }
 
     public void downloadPhotosForQuery(String query) throws IOException {
         photoDownloader.searchForPhotos(query)
-                .compose(this::processPhotos)
+//                .compose(this::processPhotos)
+                .compose(this::processPhotosWithGroupby)
                 .subscribe(photoSerializer::savePhoto);
     }
 
     public void downloadPhotosForMultipleQueries(List<String> queries) {
         photoDownloader.searchForPhotos(queries)
-                .compose(this::processPhotos)
+//                .compose(this::processPhotos)
+                .compose(this::processPhotosWithGroupby)
                 .subscribe(photoSerializer::savePhoto);
     }
 
     private Observable<Photo> processPhotos(Observable<Photo> source) {
+        return source.filter(photoProcessor::isPhotoValid)
+                .map(photoProcessor::convertToMiniature);
+    }
+
+
+    private Observable<Photo> processPhotosWithGroupby(Observable<Photo> source) {
         return source.filter(photoProcessor::isPhotoValid)
                 .groupBy(PhotoSize::resolve)
                 .flatMap(groupedObservable -> {
