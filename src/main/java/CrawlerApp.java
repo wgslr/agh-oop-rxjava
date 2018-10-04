@@ -7,11 +7,14 @@ public class CrawlerApp  {
     private static List<String> TOPICS = Arrays.asList("Agent Cooper", "Sherlock", "Poirot", "Miss Murple", "Detective Monk");
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         PhotoCrawler photoCrawler = new PhotoCrawler();
         photoCrawler.resetLibrary();
-        photoCrawler.downloadPhotoExamples();
-        photoCrawler.downloadPhotosForMultipleQueries(Arrays.asList("disney", "marvel"));
+//        photoCrawler.downloadPhotoExamples();
+        photoCrawler.downloadPhotosForMultipleQueries(TOPICS);
+
+
+        Thread.sleep(100_000);
 //        photoCrawler.downloadPhotosForQuery(TOPICS.get(0));
 //        photoCrawler.downloadPhotosForMultipleQueries(TOPICS);
     }
